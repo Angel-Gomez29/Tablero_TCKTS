@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tablero de tickets – Mesa de ayuda</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f5f8;--card:#fff;--ink:#16202e;--mut:#5f6b7a;--line:#dde2ea;--sel:#16202e;--up:#c0392b;--dn:#178a4a;
+--c0:#e39a1f;--c1:#2f6fd0;--c2:#7b54c9;--c3:#178a86;--c4:#8b95a3;--g0:#1e3a5f;--g1:#b0386e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1520;--card:#182131;--ink:#e8edf5;--mut:#9aa7b8;--line:#2a3648;--sel:#e8edf5;--up:#ff8a7a;--dn:#5fd08a;--c0:#f0b04a;--c1:#6ea3f5;--c2:#a58af0;--c3:#43c0ba;--c4:#7d8899;--g0:#8fb4e8;--g1:#e58ab8}}
+:root[data-theme="dark"]{--bg:#0f1520;--card:#182131;--ink:#e8edf5;--mut:#9aa7b8;--line:#2a3648;--sel:#e8edf5;--up:#ff8a7a;--dn:#5fd08a;--c0:#f0b04a;--c1:#6ea3f5;--c2:#a58af0;--c3:#43c0ba;--c4:#7d8899;--g0:#8fb4e8;--g1:#e58ab8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+main{max-width:1200px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:24px;margin:0 0 2px}h2{font-size:16px;margin:0}
+.sub{color:var(--mut);margin:0 0 18px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.full{margin-bottom:14px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.up{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.upb{padding:9px 16px;border-radius:8px;background:var(--sel);color:var(--bg);font-weight:600;cursor:pointer;font-size:14px}.upb:hover{opacity:.88}
+.msg{font-size:13px;color:var(--mut);max-width:380px}.msg.err{color:#c0392b}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{cursor:pointer;text-align:left;font:inherit;color:inherit;border-left:5px solid var(--k);padding:12px 14px}
+.kpi b{display:block;font-size:30px;line-height:1.1}.kpi span{color:var(--mut);font-size:13px}
+.kpi[aria-pressed=true]{outline:2px solid var(--sel)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:820px){.g2{grid-template-columns:1fr}}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.gfr{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}.gfr label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px;min-width:150px}
+.gfr input[type=date]{padding:5px 8px}.gfr .msb{padding:7px 8px;font-size:14px}
+.bar{display:grid;grid-template-columns:150px 1fr 52px;gap:8px;align-items:center;margin:9px 0;font-size:13px}
+.bar i{display:block;height:16px;border-radius:3px;background:var(--k);min-width:2px}
+.bar em{font-style:normal;text-align:right;font-weight:600}
+.pw{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.pw svg{width:200px;height:200px;flex:none}#pieL{flex:1;min-width:210px}
+.sl{cursor:pointer;stroke:var(--card);stroke-width:2}.sl.on{stroke:var(--sel);stroke-width:3}
+.pl{display:grid;grid-template-columns:14px 1fr auto auto;gap:10px;align-items:center;width:100%;padding:7px 8px;margin:2px 0;border:1px solid transparent;border-radius:6px;background:none;color:inherit;font:inherit;font-size:14px;text-align:left;cursor:pointer}
+.pl[aria-pressed=true]{border-color:var(--sel)}.pl u{width:14px;height:14px;border-radius:3px;background:var(--k)}.pl em{font-style:normal;font-weight:600}.pl small{color:var(--mut);min-width:44px;text-align:right}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.chip{font:inherit;font-size:12px;padding:3px 10px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{border-color:var(--k);background:color-mix(in srgb,var(--k) 20%,var(--card));font-weight:600}.chip[aria-pressed=true]:before{content:"✓ "}
+.hint{font-size:12px;color:var(--mut);margin:0 0 8px}
+.sc{max-height:520px;overflow:auto;padding-right:4px}
+.hb{display:grid;grid-template-columns:minmax(110px,210px) 1fr 44px;gap:8px;align-items:center;width:100%;padding:4px 6px;margin:1px 0;border:1px solid transparent;border-radius:6px;background:none;color:inherit;font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.hb[aria-pressed=true]{border-color:var(--sel)}
+.hb span{overflow-wrap:anywhere}.hb i{display:block;height:14px;border-radius:3px;background:var(--c1);min-width:2px}.hb em{font-style:normal;text-align:right;font-weight:600}
+div.hb{cursor:default}.rb{grid-template-columns:minmax(110px,260px) 1fr 120px}.rb i{background:var(--c3)}.rb em small{color:var(--mut);font-weight:400}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+select,input,textarea{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+input[type=search]{flex:1;min-width:180px}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+.btn{padding:8px 14px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.btn.pri{background:var(--sel);color:var(--bg);border-color:var(--sel);font-weight:600}.btn.sm{padding:4px 10px;font-size:12px}
+.seg{display:inline-flex}.seg button{font:inherit;font-size:12px;padding:4px 10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.seg button:first-child{border-radius:6px 0 0 6px}.seg button:last-child{border-radius:0 6px 6px 0;border-left:0}.seg button[aria-pressed=true]{background:var(--sel);color:var(--bg)}
+.cnt{color:var(--mut);font-size:13px;margin:0 0 8px}
+.wrap{overflow:auto;height:480px;min-height:180px;max-width:100%;resize:both;border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:600;position:sticky;top:0;background:var(--card);z-index:2;white-space:nowrap}
+.fr th{top:33px;padding:4px 6px}.fr input,.fr select{width:100%;min-width:100px;padding:4px 5px;font-size:12px}.fr input+select{margin-top:4px}
+td.n,th.n{text-align:right}.sh{cursor:pointer;user-select:none;white-space:nowrap}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;background:var(--k);color:#fff;white-space:nowrap}
+.oc{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;min-width:240px;max-width:380px;cursor:pointer}.oc.x{display:block}
+.mut{color:var(--mut)}
+.msb{width:100%;min-width:100px;text-align:left;padding:4px 6px;font:inherit;font-size:12px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#msp{position:fixed;z-index:50;width:290px;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.28);padding:8px;display:flex;flex-direction:column;gap:6px}
+#msp[hidden]{display:none}#msp input{width:100%}.msa{display:flex;gap:6px}.msa button{flex:1;font-size:12px;padding:4px}
+#mso{overflow:auto;max-height:250px}.mo{display:flex;gap:8px;align-items:flex-start;padding:4px 2px;font-size:13px;cursor:pointer}
+.more{margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.st{border:1px solid var(--line);border-radius:8px;padding:8px 12px}.st b{display:block;font-size:22px}.st span{font-size:12px;color:var(--mut)}
+.leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--mut);margin-bottom:6px}.leg u{text-decoration:none}.leg u:before{content:"";display:inline-block;width:18px;height:3px;border-radius:2px;background:var(--k);margin-right:5px;vertical-align:middle}
+.ch{width:100%;height:auto;display:block}.ch text{fill:var(--mut);font-size:11px}.ch .gl{stroke:var(--line)}
+.ch path{fill:none;stroke-width:2.5;stroke-linejoin:round}.ch circle{stroke:var(--card);stroke-width:1.5}
+.cmpsel{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:10px}.cmpsel label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px}
+.up2{color:var(--up);font-weight:600}.dn2{color:var(--dn);font-weight:600}.z2{color:var(--mut)}
+.evo{display:grid;grid-template-columns:90px 1fr 120px 30px;gap:8px;align-items:center;font-size:13px;margin:4px 0}.evo i{display:block;height:12px;border-radius:3px;background:var(--c0)}
+details{margin-top:0}summary{cursor:pointer;font-weight:600;font-size:16px}
+textarea{width:100%;min-height:70px;font-size:13px}
+.db{grid-template-columns:minmax(100px,180px) 1fr auto}
+.stk{display:flex;height:14px;border-radius:3px;overflow:hidden;min-width:2px}.stk i{display:block;background:var(--k);height:100%;min-width:2px}
+.cn{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end}.np{font-style:normal;font-size:11px;font-weight:600;line-height:1;padding:3px 6px;border-radius:9px;background:var(--k);color:#fff;white-space:nowrap}
+.dt{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--k);margin-right:5px}
+.dsn{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);margin-bottom:10px;font-size:13px}.dsn[hidden]{display:none}.dsn .btn{margin-left:8px}
+.szb{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--mut)}
+.evo{grid-template-columns:minmax(170px,300px) 1fr 250px 30px}.evo>span{white-space:nowrap}@media(max-width:700px){.evo{grid-template-columns:1fr 30px}.evo>div{display:none}.evo>span{grid-column:1/2;white-space:normal}}.evc{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:center;cursor:pointer}.evc small{flex-basis:100%;color:var(--mut);font-size:11px;overflow-wrap:anywhere;padding-left:22px}
+.cf{display:flex;gap:4px;align-items:stretch}.cf input{width:auto;flex:1;min-width:84px}.cf .btn{flex:none;padding:3px 9px;min-width:34px}
+.qs{width:100%;margin:0 0 8px}
+.dx{margin:2px 0}.dxh>span:before{content:"▸";display:inline-block;margin-right:6px;color:var(--mut);transition:transform .15s}.dxh[aria-expanded=true]>span:before{transform:rotate(90deg)}
+.dxs{margin:2px 0 10px 20px;border-left:2px solid var(--line);padding-left:8px}small.sn{color:var(--mut);font-weight:400;margin-left:4px}
+.ch3{font-size:14px;margin:16px 0 6px}
+.cmpt table{width:max-content;min-width:100%}.cmpt td.n,.cmpt th.n{white-space:nowrap}.cmpt th small{font-weight:400}
+.cmpt td:first-child,.cmpt th:first-child{position:sticky;left:0;background:var(--card);min-width:190px;max-width:340px;white-space:normal}.cmpt th:first-child{z-index:4}.cmpt td:first-child{z-index:1}
+.cmpt td:last-child,.cmpt th:last-child{position:sticky;right:0;background:var(--card);box-shadow:-1px 0 0 var(--line)}.cmpt th:last-child{z-index:4}.cmpt td:last-child{z-index:1}
+.cf .msb{flex:1;min-width:0}
+.pls{margin:0 0 8px 22px;padding-left:10px;border-left:2px solid var(--line)}.plr{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:3px 4px;font-size:13px}.plr small{color:var(--mut);min-width:44px;text-align:right}
+:root{--p0:#1f8a4c;--p1:#b7791f;--p2:#d9480f;--p3:#c0262d;--p4:#6b7685}
+td.nw{white-space:nowrap}td small.mut{margin-left:2px}.leg2{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.sem{display:flex;gap:28px;align-items:center;flex-wrap:wrap}.sem svg{width:96px;height:300px;flex:none}#semL{flex:1;min-width:260px}
+.ln{cursor:pointer;opacity:.2;transition:opacity .15s}.ln.on{opacity:1}
+.sr{display:grid;grid-template-columns:16px 1fr auto auto;gap:12px;align-items:center;width:100%;padding:9px 10px;margin:2px 0;border:1px solid transparent;border-radius:8px;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.sr[aria-pressed=true]{border-color:var(--sel)}.sr u{width:16px;height:16px;border-radius:50%;background:var(--k)}.sr em{font-style:normal;font-weight:700;font-size:20px}.sr small{color:var(--mut);min-width:48px;text-align:right}.sr .rg{display:block;font-size:12px;color:var(--mut)}
+.ant td.v,.ant th.v{text-align:center;white-space:nowrap}.ant .ad td{font-weight:600;background:color-mix(in srgb,var(--line) 35%,var(--card))}.ant .as td:first-child{padding-left:30px;font-weight:400}
+.ant .nm{all:unset;cursor:pointer;display:inline-flex;gap:6px;align-items:baseline}.ant .nm:focus-visible{outline:2px solid var(--c1);outline-offset:2px}.ant .nm:before{content:"▸";color:var(--mut);display:inline-block;transition:transform .15s}.ant .nm[aria-expanded=true]:before{transform:rotate(90deg)}
+.ant small{color:var(--mut);font-weight:400}.ant .cf1{color:var(--c0)}
+.mg .hit{fill:transparent;cursor:pointer}.mg:hover .hit{fill:color-mix(in srgb,var(--sel) 7%,transparent)}.mg.sel .hit{fill:color-mix(in srgb,var(--sel) 12%,transparent);stroke:var(--sel)}.mg:focus-visible{outline:2px solid var(--c1)}
+.ch .av{stroke:var(--c0);stroke-width:2;stroke-dasharray:6 4}
+.lgb{font:inherit;font-size:12px;padding:3px 10px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}.lgb[aria-pressed=true]{border-color:var(--k);background:color-mix(in srgb,var(--k) 18%,var(--card));font-weight:600}.lgb .dt{margin-right:6px}
+.mbtn{all:unset;cursor:pointer;font-weight:600}.mbtn:focus-visible{outline:2px solid var(--c1);outline-offset:2px}.mrow.sel td{background:color-mix(in srgb,var(--c1) 14%,var(--card))}
+#mtb tfoot td{border-top:2px solid var(--line);background:color-mix(in srgb,var(--line) 30%,var(--card))}#mtb small{color:var(--mut);font-weight:400}
+.sync-badge{display:inline-block;background:#27ae60;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;vertical-align:middle;margin-left:6px}
+</style></head><body><main>
+<div class="top"><div><h1>Tablero de tickets · Mesa de ayuda <span class="sync-badge" id="syncStatus">En Vivo</span></h1>
+<p class="sub"><span id="src">Hoja TCKT_VER_PEND</span> · reporte del <span id="rep">--/--/----</span> · <span id="tot">0</span> tickets</p></div>
+<div class="up"><label class="upb" for="up">⬆ Subir reporte</label><input id="up" type="file" accept=".xlsx,.xlsm,.xls" hidden><span id="msg" class="msg" role="status" aria-live="polite"></span></div></div>
+
+<section class="card full"><div class="hd"><h2>Filtros generales</h2><span class="hint" id="gfc" style="margin:0"></span><button class="btn sm" id="gclr">Limpiar filtros generales</button></div>
+<div class="gfr"><label>Creados desde<input type="date" id="dfrom"></label><label>Creados hasta<input type="date" id="dto"></label>
+<label>Prioridad del reporte<button class="msb" data-k="p"></button></label><label>Tipo de solicitud<button class="msb" data-k="y"></button></label><label>Tipo de persona<button class="msb" data-k="w"></button></label></div>
+<p class="hint" style="margin:8px 0 0">Cualquier reporte que subas aquí se guardará centralizadamente y se actualizará en tiempo real a todos los usuarios.</p></section>
+
+<div id="dsn" class="dsn" hidden></div>
+<div class="kpis" id="kpis"></div>
+<div class="g2">
+ <section class="card"><div class="hd"><h2>Tickets por estado</h2></div><p class="hint">No incluye el estado Cerrado (su cantidad está en la caja de estado de arriba).</p><div id="bars"></div></section>
+ <section class="card"><div class="hd"><h2>Casos abiertos por agrupación de estados</h2></div><p class="hint" id="pieT"></p><p class="hint" style="margin-top:-4px">Haz clic en uno o en los dos grupos para filtrar la tabla de detalle y ver cuántos tickets tiene cada uno de sus estados.</p><div class="pw"><svg id="pie" viewBox="0 0 200 200" role="img" aria-label="Gráfico de pastel de los casos sin cerrar por estado"></svg><div id="pieL"></div></div></section>
+</div>
+<section class="card full" id="semc"><div class="hd"><h2>Semáforo de prioridades (ANS)</h2></div>
+<p class="hint" id="semT"></p><p class="hint" style="margin-top:-4px">Muestra los tickets sin cerrar según el porcentaje de su ANS que ya se consumió. Haz clic en una luz para filtrar la tabla de detalle; puedes elegir varias. Si seleccionas uno o los dos grupos de la torta, el semáforo muestra solo los tickets de esos estados.</p>
+<div class="sem"><svg id="semsvg" viewBox="0 0 96 300" role="img" aria-label="Semáforo de prioridades de los tickets sin cerrar"></svg><div id="semL"></div></div></section>
+
+<div class="g2">
+ <section class="card"><div class="hd"><h2>Tickets por dependencia</h2><button class="btn sm" id="dclr" hidden>Quitar selección</button></div><div class="chips" id="chd"></div><p class="hint">Marca uno o varios estados para ver cuántos tickets tiene cada dependencia en cada uno (sin sumarlos). Haz clic en una o más dependencias para que las cajas de estado y la tabla de detalle muestren solo esas dependencias; sin ninguna seleccionada se muestra todo el reporte.</p><input class="qs" type="search" data-q="d" placeholder="Buscar dependencia…" aria-label="Buscar dependencia"><div class="sc" id="dep"></div></section>
+ <section class="card"><div class="hd"><h2>Tickets por servicio</h2><button class="btn sm" id="sclr" hidden>Quitar selección</button></div><div class="chips" id="chs"></div><p class="hint">Marca uno o varios estados para ver cuántos tickets tiene cada servicio en cada uno (sin sumarlos). Haz clic en uno o más servicios para que la tabla de detalle muestre solo esos servicios.</p><input class="qs" type="search" data-q="s" placeholder="Buscar servicio…" aria-label="Buscar servicio"><div class="sc" id="srv"></div></section>
+</div>
+
+<section class="card full"><div class="hd"><h2>Servicios por dependencia</h2><div class="szb"><button class="btn sm" id="xall">Expandir todo</button><button class="btn sm" id="xnone">Contraer todo</button></div></div><div class="chips" id="chx"></div>
+<p class="hint">Haz clic en una dependencia para ver qué servicios tiene y cuántos tickets hay en cada estado. Marca uno o varios estados para filtrar; sin ninguno se cuentan todos.</p>
+<input class="qs" type="search" data-q="x" placeholder="Buscar dependencia o servicio…" aria-label="Buscar dependencia o servicio"><div class="sc" id="dsv" style="max-height:560px"></div></section>
+
+<section class="card full"><div class="hd"><h2>Detalle de tickets</h2><div class="szb">Tamaño de la tabla: <button class="btn sm" data-th="280">Pequeño</button><button class="btn sm" data-th="480">Mediano</button><button class="btn sm" data-th="780">Grande</button><span>o arrastra la esquina inferior derecha</span></div></div>
+ <div class="tools"><input id="q" type="search" placeholder="Buscar en toda la tabla"><button class="btn" id="clr">Limpiar filtros de la tabla</button><button class="btn pri" id="xl">⬇ Descargar Excel</button></div>
+ <p class="cnt"><span id="cnt"></span> <span id="xm" class="msg" role="status" aria-live="polite"></span></p>
+ <div class="wrap" id="wrap"><table><thead><tr><th>Ticket</th><th>Código externo</th><th data-sk="p" class="sh" title="Ordenar por prioridad" aria-sort="none">Prioridad <span class="sa">↕</span></th><th data-sk="e" class="sh" title="Ordenar por estado" aria-sort="none">Estado <span class="sa">↕</span></th><th data-sk="f" class="sh" title="Ordenar por fecha de creación" aria-sort="none">Creado <span class="sa">↕</span></th><th>Descripción</th><th>Servicio</th><th data-sk="dp" class="sh" title="Ordenar por dependencia" aria-sort="none">Dependencia <span class="sa">↕</span></th><th data-sk="u" class="sh" title="Ordenar por última derivación" aria-sort="none">Última derivación <span class="sa">↕</span></th><th data-sk="r" class="sh" title="Ordenar por última respuesta" aria-sort="none">Última respuesta <span class="sa">↕</span></th><th>Observaciones</th><th>Gestor</th><th data-sk="h" class="sh n" title="Ordenar por días hábiles desde la creación" aria-sort="none">Días hab. creación <span class="sa">↕</span></th><th data-sk="hu" class="sh n" title="Ordenar por días hábiles desde la última respuesta" aria-sort="none">Días háb. Última resp. <span class="sa">↕</span></th><th data-sk="hd" class="sh n" title="Ordenar por días hábiles desde la última derivación" aria-sort="none">Días hab. última derivación <span class="sa">↕</span></th><th data-sk="tp" class="sh" title="Ordenar por tipo de persona" aria-sort="none">Tipo de persona <span class="sa">↕</span></th></tr>
+ <tr class="fr" id="fr"><th><input data-k="t" placeholder="Filtrar"></th><th><input data-k="c" placeholder="Filtrar"></th><th><div class="cf"><button class="msb" data-k="n"></button><button class="btn sm" data-sk="p">↕</button></div></th><th><div class="cf"><button class="msb" data-k="e"></button><button class="btn sm" data-sk="e">↕</button></div></th><th><div class="cf"><input data-k="f" placeholder="dd/mm/aaaa"><button class="btn sm" data-sk="f">↕</button></div></th><th><input data-k="ds" placeholder="Buscar texto"></th><th><button class="msb" data-k="s"></button></th><th><div class="cf"><button class="msb" data-k="d"></button><button class="btn sm" data-sk="dp">↕</button></div></th><th><div class="cf"><input data-k="u" placeholder="dd/mm/aaaa"><button class="btn sm" data-sk="u">↕</button></div></th><th><div class="cf"><input data-k="r" placeholder="dd/mm/aaaa"><button class="btn sm" data-sk="r">↕</button></div></th><th><input data-k="b" placeholder="Buscar texto"></th><th><button class="msb" data-k="g"></button></th><th><div class="cf"><input data-k="h" type="number" min="0" placeholder="≥ días"><button class="btn sm" data-sk="h">↕</button></div></th><th><div class="cf"><input data-k="hu" type="number" min="0" placeholder="≥ días"><button class="btn sm" data-sk="hu">↕</button></div></th><th><div class="cf"><input data-k="hd" type="number" min="0" placeholder="≥ días"><button class="btn sm" data-sk="hd">↕</button></div></th><th><div class="cf"><button class="msb" data-k="tp"></button><button class="btn sm" data-sk="tp">↕</button></div></th></tr></thead><tbody id="tb"></tbody></table></div>
+ <button class="btn more" id="more">Mostrar más</button>
+</section>
+
+<div id="msp" hidden role="dialog" aria-label="Seleccionar opciones"><input id="mss" type="search" placeholder="Buscar opción"><div class="msa"><button class="btn" data-a="all">Marcar visibles</button><button class="btn" data-a="none">Quitar todo</button></div><div id="mso"></div></div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Conexión Firebase Firestore -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJRepXgmkQkfOZxCi9dDQDZg198-iZGC0",
+    authDomain: "tableromesaucv.firebaseapp.com",
+    projectId: "tableromesaucv",
+    storageBucket: "tableromesaucv.firebasestorage.app",
+    messagingSenderId: "90767952594",
+    appId: "1:90767952594:web:3514cb5f2ea6d26f567b0b",
+    measurementId: "G-Y7NESG4NJ4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 1. Escuchar actualizaciones globales en vivo
+  const docRef = doc(db, "tablero", "reporte_actual");
+  onSnapshot(docRef, (snap) => {
+    if (snap.exists()) {
+      const data = snap.data();
+      document.getElementById("rep").innerText = data.fechaReporte || new Date().toLocaleDateString();
+      if(data.tickets) {
+        window.cargarDatosExternos(data.tickets);
+      }
+    }
+  });
+
+  // 2. Evento para procesar y subir el Excel a Firebase
+  document.getElementById('up').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const msg = document.getElementById("msg");
+    msg.innerText = "Procesando y sincronizando con la nube...";
+    
+    const reader = new FileReader();
+    reader.onload = async function(evt) {
+      try {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, {type: 'array', cellDates: true});
+        const firstSheet = workbook.SheetNames[0];
+        const json = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+
+        // Guardar la estructura en Firestore
+        await setDoc(doc(db, "tablero", "reporte_actual"), {
+          fechaReporte: new Date().toLocaleDateString('es-CO'),
+          tickets: json
+        });
+        msg.innerText = "¡Reporte guardado! Todos los usuarios están viendo la nueva información.";
+      } catch (err) {
+        console.error(err);
+        msg.innerText = "Error actualizando: " + err.message;
+        msg.classList.add("err");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+</script>
+
+<script>
+// Lógica de cálculo y renderizado gráfico original del tablero
+let D = {"estados":["Abierto","En proceso","Caso en verificación","Pendiente por el estudiante","Cerrado"],"tickets":[]};
+
+window.cargarDatosExternos = function(listaTickets) {
+  D.tickets = listaTickets;
+  renderTablero();
+};
+
+function renderTablero() {
+  document.getElementById("tot").innerText = D.tickets.length;
+  const tb = document.getElementById("tb");
+  tb.innerHTML = "";
+  
+  D.tickets.slice(0, 50).forEach(t => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${t['Ticket'] || t['Código'] || '-'}</td>
+      <td>${t['Código externo'] || '-'}</td>
+      <td>${t['Prioridad'] || 'NORMAL'}</td>
+      <td><span class="tag" style="--k:var(--c1)">${t['Estado'] || 'Abierto'}</span></td>
+      <td>${t['Creado'] || '-'}</td>
+      <td><div class="oc">${t['Descripción'] || t['Detalle'] || '-'}</div></td>
+      <td>${t['Servicio'] || '-'}</td>
+      <td>${t['Dependencia'] || '-'}</td>
+      <td>${t['Última derivación'] || '-'}</td>
+      <td>${t['Última respuesta'] || '-'}</td>
+      <td><div class="oc">${t['Observaciones'] || '-'}</div></td>
+      <td>${t['Gestor'] || '-'}</td>
+      <td class="n">${t['Días hab. creación'] || 0}</td>
+      <td class="n">${t['Días háb. Última resp.'] || 0}</td>
+      <td class="n">${t['Días hab. última derivación'] || 0}</td>
+      <td>${t['Tipo de persona'] || 'Estudiante'}</td>
+    `;
+    tb.appendChild(tr);
+  });
+  
+  // KPIs simples iniciales
+  const kpis = document.getElementById("kpis");
+  kpis.innerHTML = `
+    <button class="card kpi" style="--k:var(--c1)"><b>${D.tickets.length}</b><span>Total acumulado</span></button>
+    <button class="card kpi" style="--k:var(--c0)"><b>${D.tickets.filter(x=>x.Estado!=='Cerrado').length}</b><span>Abiertos en total</span></button>
+    <button class="card kpi" style="--k:var(--dn)"><b>${D.tickets.filter(x=>x.Estado==='Cerrado').length}</b><span>Casos Cerrados</span></button>
+  `;
+}
+</script>
+</body>
+</html>
